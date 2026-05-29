@@ -1,82 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="mint">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ftap | aimtrainer v8</title>
+    <title>Aim Trainer</title>
     <style>
-        /* Explicitly defining ALL themes so GitHub Pages cannot override defaults */
-        :root, [data-theme="cyberpunk"] {
+        :root, [data-theme="mint"] {
             --bg-sidebar: #0f1115;
             --bg-game: #07080a;
-            --border-color: #1e222b;
-            --text-main: #f3f4f6;
+            --border: #1e222b;
+            --text: #f3f4f6;
             --text-muted: #6b7280;
-            --accent: #00f5b4; /* Forced Mint */
-            --target-color: #ff3b6f;
-            --dropdown-opt-bg: #0f1115;
-            --dropdown-opt-text: #f3f4f6;
+            --accent: #00f5b4; 
+            --target: #ff3b6f;
+            --dropdown-bg: #0f1115;
+            --dropdown-text: #f3f4f6;
         }
 
         [data-theme="dark"] {
             --bg-sidebar: #151515;
             --bg-game: #0d0d0d;
-            --border-color: #262626;
-            --text-main: #e5e5e5;
+            --border: #262626;
+            --text: #e5e5e5;
             --text-muted: #737373;
             --accent: #a855f7;
-            --target-color: #f43f5e;
-            --dropdown-opt-bg: #151515;
-            --dropdown-opt-text: #e5e5e5;
+            --target: #f43f5e;
+            --dropdown-bg: #151515;
+            --dropdown-text: #e5e5e5;
         }
 
         [data-theme="light"] {
             --bg-sidebar: #f4f4f7;
             --bg-game: #ffffff;
-            --border-color: #e4e4e7;
-            --text-main: #18181b;
+            --border: #e4e4e7;
+            --text: #18181b;
             --text-muted: #a1a1aa;
             --accent: #2563eb;
-            --target-color: #ef4444;
-            --dropdown-opt-bg: #ffffff;
-            --dropdown-opt-text: #18181b;
+            --target: #ef4444;
+            --dropdown-bg: #ffffff;
+            --dropdown-text: #18181b;
         }
 
         [data-theme="matrix"] {
             --bg-sidebar: #020604;
             --bg-game: #000000;
-            --border-color: #052e16;
-            --text-main: #4ade80;
+            --border: #052e16;
+            --text: #4ade80;
             --text-muted: #14532d;
             --accent: #22c55e;
-            --target-color: #16a34a;
-            --dropdown-opt-bg: #020604;
-            --dropdown-opt-text: #4ade80;
+            --target: #16a34a;
+            --dropdown-bg: #020604;
+            --dropdown-text: #4ade80;
         }
 
-        body { 
-            margin: 0; 
-            background: var(--bg-game); 
-            color: var(--text-main); 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            background-color: var(--bg-game);
+            color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex; 
             height: 100vh; 
+            width: 100vw;
             overflow: hidden; 
             user-select: none; 
-            transition: background 0.2s, color 0.2s;
         }
         
         #sidebar { 
-            width: 280px; /* Slightly wider to prevent shrinking on GitHub web viewports */
+            width: 280px; 
+            min-width: 280px;
             background: var(--bg-sidebar); 
             padding: 24px; 
-            border-right: 1px solid var(--border-color); 
+            border-right: 1px solid var(--border); 
             z-index: 10; 
             display: flex; 
             flex-direction: column; 
             gap: 20px; 
             overflow-y: auto;
-            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) transparent;
+        }
+
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            opacity: 0.8;
         }
 
         h2 { font-size: 11px; letter-spacing: 1.5px; margin: 0 0 4px 0; color: var(--accent); font-weight: 700; text-transform: uppercase; }
@@ -85,20 +108,64 @@
 
         input, select, button { 
             background: rgba(255,255,255,0.03); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-main); 
-            padding: 12px 14px; /* Increased height padding slightly for better web layout scan */
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            padding: 12px 14px; 
             border-radius: 8px; 
             width: 100%; 
-            box-sizing: border-box; 
             font-size: 13px;
             outline: none;
             transition: all 0.2s;
-            appearance: none;
+        }
+
+        input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0;
+            outline: none;
+        }
+
+        [data-theme="light"] input[type="range"] {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 12px;
+            border-radius: 6px;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 12px;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.1);
         }
         
         select {
+            appearance: none;
+            -webkit-appearance: none;
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
             background-repeat: no-repeat;
             background-position: right 12px center;
@@ -106,13 +173,12 @@
         }
 
         select option {
-            background-color: var(--dropdown-opt-bg);
-            color: var(--dropdown-opt-text);
+            background-color: var(--dropdown-bg);
+            color: var(--dropdown-text);
         }
 
-        [data-theme="light"] input, [data-theme="light"] select { background: #fff; }
-        input:focus, select:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-        [data-theme="light"] input:focus, [data-theme="light"] select:focus { background: #fff; }
+        [data-theme="light"] input:not([type="range"]), [data-theme="light"] select { background: #fff; }
+        input:focus, select:focus { border-color: var(--accent); }
 
         button { background: var(--accent); color: #000; font-weight: 600; cursor: pointer; border: none; margin-top: 5px; }
         button:hover { opacity: 0.9; }
@@ -127,18 +193,33 @@
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 32px;
+            gap: 28px;
             background: var(--bg-sidebar);
-            padding: 12px 28px;
+            padding: 12px 24px;
             border-radius: 12px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
             pointer-events: none;
             z-index: 5;
+            align-items: center;
         }
 
-        .hud-stat { text-align: center; }
+        .hud-stat { text-align: center; white-space: nowrap; }
         .hud-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 2px; }
         .hud-value { font-size: 18px; color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 700; }
+        
+        .hud-divider {
+            height: 24px;
+            width: 1px;
+            background: var(--border);
+        }
+        .hud-target-display {
+            font-size: 11px;
+            color: var(--text);
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .hud-target-display b { color: var(--accent); font-variant-numeric: tabular-nums; }
 
         #targetCriteria {
             font-size: 11px;
@@ -147,7 +228,7 @@
             background: rgba(255,255,255,0.01);
             padding: 12px;
             border-radius: 8px;
-            border: 1px dashed var(--border-color);
+            border: 1px dashed var(--border);
             line-height: 1.6;
         }
 
@@ -189,16 +270,6 @@
 <body>
 
 <div id="sidebar">
-    <h2>Style</h2>
-    <div class="setting-group">
-        <select id="themeSelect">
-            <option value="cyberpunk">Mint</option>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-            <option value="matrix">Matrix</option>
-        </select>
-    </div>
-
     <h2>Mode</h2>
     <div class="setting-group">
         <select id="modeSelectRoot">
@@ -256,7 +327,26 @@
     <div class="setting-group"><label>DPI</label><input type="number" id="dpi" value="400"></div>
     <div class="setting-group"><label>Sens</label><input type="number" id="sens" value="0.23" step="0.01"></div>
     
-    <button id="resetBtn">RESET SETTINGS</button>
+    <h2>Crosshair</h2>
+    <div class="setting-group">
+        <label>Crosshair Size</label>
+        <input type="range" id="crosshairSize" min="4" max="24" value="10">
+    </div>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 20px;">
+        <div>
+            <h2>Style</h2>
+            <div class="setting-group">
+                <select id="themeSelect">
+                    <option value="mint">Mint</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="matrix">Matrix</option>
+                </select>
+            </div>
+        </div>
+        <button id="resetBtn">RESET SETTINGS</button>
+    </div>
 </div>
 
 <div id="gameArea">
@@ -264,6 +354,8 @@
         <div class="hud-stat"><div class="hud-label" id="hudTimeLabel">Time</div><div id="timeVal" class="hud-value">15s</div></div>
         <div class="hud-stat"><div class="hud-label">Hits</div><div id="scoreVal" class="hud-value">0</div></div>
         <div class="hud-stat"><div class="hud-label">Acc</div><div id="accVal" class="hud-value">100%</div></div>
+        <div class="hud-divider"></div>
+        <div class="hud-target-display" id="hudTargetGoal">Hits: <b>0/0</b> | Acc: <b>100%/0%</b></div>
     </div>
 
     <div id="countdownText">3</div>
@@ -288,6 +380,7 @@
     const timeVal = document.getElementById('timeVal');
     const hudTimeLabel = document.getElementById('hudTimeLabel');
     const targetCriteria = document.getElementById('targetCriteria');
+    const hudTargetGoal = document.getElementById('hudTargetGoal');
 
     const themeSelect = document.getElementById('themeSelect');
     const modeSelectRoot = document.getElementById('modeSelectRoot');
@@ -300,6 +393,7 @@
     const sizeSelect = document.getElementById('sizeSelect');
     const dpiInput = document.getElementById('dpi');
     const sensInput = document.getElementById('sens');
+    const crosshairSize = document.getElementById('crosshairSize');
     const resetBtn = document.getElementById('resetBtn');
 
     let player = { x: 0, y: 0 };
@@ -307,6 +401,7 @@
     let isLocked = false;
     let gameActive = false;
     let inCountdown = false;
+    let isHoveringTarget = false; 
 
     let score = 0;
     let totalClicks = 0;
@@ -337,25 +432,25 @@
             size: sizeSelect.value,
             dpi: dpiInput.value,
             sens: sensInput.value,
+            crosshairSize: crosshairSize.value,
             currentTier: currentTier
         };
-        localStorage.setItem('aimtrainer_v8_settings', JSON.stringify(settings));
+        localStorage.setItem('aimtrainer_settings', JSON.stringify(settings));
     }
 
     function applyThemeAttribute(themeName) {
-        // Enforce the attribute to override default hosting layouts seamlessly
         document.documentElement.setAttribute('data-theme', themeName);
     }
 
     function loadSettings() {
-        const stored = localStorage.getItem('aimtrainer_v8_settings');
+        const stored = localStorage.getItem('aimtrainer_settings');
         if (!stored) {
-            applyThemeAttribute("cyberpunk");
+            applyThemeAttribute("mint");
             return;
         }
         try {
             const settings = JSON.parse(stored);
-            themeSelect.value = settings.theme || "cyberpunk";
+            themeSelect.value = settings.theme || "mint";
             modeSelectRoot.value = settings.rootMode || "sandbox";
             timeLimitSelect.value = settings.timeLimit || "15";
             modeSelect.value = settings.tuningMode || "flick";
@@ -363,12 +458,12 @@
             sizeSelect.value = settings.size || "28";
             dpiInput.value = settings.dpi || "400";
             sensInput.value = settings.sens || "0.23";
+            crosshairSize.value = settings.crosshairSize || "10";
             currentTier = settings.currentTier || 1;
 
             applyThemeAttribute(themeSelect.value);
         } catch (e) {
-            applyThemeAttribute("cyberpunk");
-            console.error("Config pipeline reset fallback stream active.", e);
+            applyThemeAttribute("mint");
         }
     }
 
@@ -390,6 +485,7 @@
 
     function updateSystemView() {
         const isArcade = modeSelectRoot.value === 'arcade';
+        const finalAcc = totalClicks === 0 ? 100 : Math.round((score / totalClicks) * 100);
         
         if (isArcade) {
             sandboxTuningPanel.style.display = "none";
@@ -398,6 +494,8 @@
             
             const activeConfig = tiers[currentTier];
             targetCriteria.innerHTML = `Campaign Mode: <b>${activeConfig.name}</b><br>Goal: <b>${activeConfig.reqScore} Hits</b><br>Required Accuracy: <b>${activeConfig.reqAcc}%</b>`;
+            hudTargetGoal.innerHTML = `Hits: <b>${score}/${activeConfig.reqScore}</b> | Acc: <b>${finalAcc}%/${activeConfig.reqAcc}%</b>`;
+            
             timeVal.textContent = activeConfig.time + "s";
             overlayTitle.textContent = `START ${activeConfig.name.toUpperCase()}`;
             overlayDesc.textContent = "Click canvas window to initiate lock.";
@@ -406,6 +504,7 @@
             timeWrapper.style.display = "block";
             
             targetCriteria.innerHTML = "Custom Sandbox Mode:<br>Configure properties below.";
+            hudTargetGoal.innerHTML = "Mode: <b>Sandbox</b>";
             timeVal.textContent = timeLimitSelect.value === 'infinite' ? "LOOP" : timeLimitSelect.value + "s";
             hudTimeLabel.textContent = timeLimitSelect.value === 'infinite' ? "Mode" : "Time";
             overlayTitle.textContent = "START SANDBOX";
@@ -420,7 +519,7 @@
         });
     });
 
-    [dpiInput, sensInput].forEach(element => {
+    [dpiInput, sensInput, crosshairSize].forEach(element => {
         element.addEventListener('input', saveSettings);
     });
 
@@ -439,11 +538,11 @@
             overlay.style.display = 'flex';
             if (gameActive && modeSelectRoot.value === 'sandbox' && timeLimitSelect.value === 'infinite') {
                 overlayTitle.textContent = "PAUSED";
-                overlayDesc.textContent = "Click to resume current frame.";
+                overlayDesc.textContent = "Click to resume.";
             } else if (inCountdown || gameActive) {
                 resetSessionState();
                 overlayTitle.textContent = "STOPPED";
-                overlayDesc.textContent = "Interrupted pipeline. Try again.";
+                overlayDesc.textContent = "Session interrupted. Click to retry.";
             }
         }
     });
@@ -452,6 +551,7 @@
         inCountdown = true;
         gameActive = false;
         target.x = 0; target.y = 0;
+        isHoveringTarget = false;
         
         score = 0;
         totalClicks = 0;
@@ -514,6 +614,7 @@
     function resetSessionState() {
         gameActive = false;
         inCountdown = false;
+        isHoveringTarget = false;
         clearInterval(timerInterval);
         countdownText.style.display = 'none';
         target.x = 0; target.y = 0;
@@ -521,6 +622,7 @@
 
     function endSession(hitQuotaReached = false) {
         gameActive = false;
+        isHoveringTarget = false;
         clearInterval(timerInterval);
         document.exitPointerLock();
 
@@ -530,7 +632,7 @@
         overlayTitle.style.color = "var(--accent)";
 
         if (modeSelectRoot.value === 'sandbox') {
-            overlayDesc.innerHTML = `<b>Sandbox Metrics Summary</b><br>Hits Triggered: <b>${score}</b><br>Accuracy Evaluation: <b>${finalAcc}%</b><br><br>Click canvas area to rerun diagnostics.`;
+            overlayDesc.innerHTML = `<b>Sandbox Summary</b><br>Hits: <b>${score}</b><br>Accuracy: <b>${finalAcc}%</b><br><br>Click window to restart.`;
             return;
         }
 
@@ -539,15 +641,15 @@
 
         if (passed) {
             if (currentTier < 10) {
-                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>${config.name} SUCCESS</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click to advance into Tier ${currentTier + 1}.</b>`;
+                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>${config.name} CLEARED</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click to progress to Tier ${currentTier + 1}.</b>`;
                 currentTier++;
             } else {
-                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>CAMPAIGN MASTERED</b></span><br>Final Tier Cleared.<br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br>Resetting to cycle matrix loops.`;
+                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>CAMPAIGN COMPLETE</b></span><br>You have finished all levels.<br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br>Click to restart loop.`;
                 currentTier = 1;
             }
         } else {
-            overlayTitle.style.color = "var(--target-color)";
-            overlayDesc.innerHTML = `<span style="color:var(--target-color);"><b>${config.name} DEFICIT</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click canvas frame to retry parameters.</b>`;
+            overlayTitle.style.color = "var(--target)";
+            overlayDesc.innerHTML = `<span style="color:var(--target);"><b>${config.name} FAILED</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click canvas frame to retry.</b>`;
         }
         
         saveSettings();
@@ -596,28 +698,39 @@
                 }
             }
             spawnTarget();
+            
+            let newSize;
+            if (modeSelectRoot.value === 'arcade') {
+                newSize = tiers[currentTier].size;
+            } else {
+                newSize = parseInt(sizeSelect.value);
+            }
+            const newDist = Math.hypot(player.x - target.x, player.y - target.y);
+            isHoveringTarget = (newDist <= newSize);
         } else {
             updateHUD();
         }
     });
 
     function updateHUD() {
+        const finalAcc = totalClicks === 0 ? 100 : Math.round((score / totalClicks) * 100);
         scoreVal.textContent = score;
-        if (totalClicks === 0) {
-            accVal.textContent = "100%";
-        } else {
-            accVal.textContent = Math.round((score / totalClicks) * 100) + "%";
+        accVal.textContent = finalAcc + "%";
+
+        if (modeSelectRoot.value === 'arcade') {
+            const activeConfig = tiers[currentTier];
+            hudTargetGoal.innerHTML = `Hits: <b>${score}/${activeConfig.reqScore}</b> | Acc: <b>${finalAcc}%/${activeConfig.reqAcc}%</b>`;
         }
     }
 
     resetBtn.addEventListener('click', () => {
-        localStorage.removeItem('aimtrainer_v8_settings');
+        localStorage.removeItem('aimtrainer_settings');
         score = 0;
         totalClicks = 0;
         currentTier = 1;
         
-        themeSelect.value = "cyberpunk";
-        applyThemeAttribute("cyberpunk");
+        themeSelect.value = "mint";
+        applyThemeAttribute("mint");
         modeSelectRoot.value = "sandbox";
         timeLimitSelect.value = "15";
         modeSelect.value = "flick";
@@ -625,6 +738,7 @@
         sizeSelect.value = "28";
         dpiInput.value = "400";
         sensInput.value = "0.23";
+        crosshairSize.value = "10";
 
         resetSessionState();
         updateSystemView();
@@ -651,7 +765,7 @@
         const currentStyles = getComputedStyle(document.body);
         const colorGameBg = currentStyles.getPropertyValue('--bg-game').trim();
         const colorAccent = currentStyles.getPropertyValue('--accent').trim();
-        const colorTarget = currentStyles.getPropertyValue('--target-color').trim();
+        const colorTarget = currentStyles.getPropertyValue('--target').trim();
 
         ctx.fillStyle = colorGameBg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -679,22 +793,60 @@
         }
 
         if (gameActive && !inCountdown && target.x !== 0 && target.y !== 0) {
+            const distance = Math.hypot(player.x - target.x, player.y - target.y);
+            isHoveringTarget = (distance <= size);
+
             ctx.beginPath();
             ctx.arc(target.x, target.y, size, 0, Math.PI * 2);
             ctx.fillStyle = colorTarget;
             ctx.fill();
             ctx.closePath();
+        } else {
+            isHoveringTarget = false;
         }
 
         if (isLocked) {
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, 8, 0, Math.PI * 2);
-            ctx.strokeStyle = colorAccent;
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            ctx.lineWidth = 2;
+            const cSize = parseInt(crosshairSize.value);
             
-            ctx.fillStyle = colorAccent;
-            ctx.fillRect(player.x - 1, player.y - 1, 2, 2);
+            if (isHoveringTarget) {
+                ctx.fillStyle = colorAccent;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+
+                ctx.strokeStyle = colorAccent;
+                ctx.beginPath();
+                
+                const gap = Math.round(cSize * 0.4);
+                const length = cSize;
+
+                ctx.moveTo(player.x - length, player.y);
+                ctx.lineTo(player.x - gap, player.y);
+                ctx.moveTo(player.x + gap, player.y);
+                ctx.lineTo(player.x + length, player.y);
+                ctx.moveTo(player.x, player.y - length);
+                ctx.lineTo(player.x, player.y - gap);
+                ctx.moveTo(player.x, player.y + gap);
+                ctx.lineTo(player.x, player.y + length);
+                
+                ctx.stroke();
+                ctx.closePath();
+            } else {
+                ctx.strokeStyle = colorAccent;
+                ctx.beginPath();
+                
+                const half = Math.round(cSize * 0.7);
+                
+                ctx.moveTo(player.x - half, player.y);
+                ctx.lineTo(player.x + half, player.y);
+                ctx.moveTo(player.x, player.y - half);
+                ctx.lineTo(player.x, player.y + half);
+                
+                ctx.stroke();
+                ctx.closePath();
+            }
         }
 
         requestAnimationFrame(gameLoop);
