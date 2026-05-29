@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ftap | aimtrainer v7</title>
+    <title>ftap | aimtrainer v8</title>
     <style>
-        :root {
+        /* Explicitly defining ALL themes so GitHub Pages cannot override defaults */
+        :root, [data-theme="cyberpunk"] {
             --bg-sidebar: #0f1115;
             --bg-game: #07080a;
             --border-color: #1e222b;
             --text-main: #f3f4f6;
             --text-muted: #6b7280;
-            --accent: #00f5b4;
+            --accent: #00f5b4; /* Forced Mint */
             --target-color: #ff3b6f;
             --dropdown-opt-bg: #0f1115;
             --dropdown-opt-text: #f3f4f6;
@@ -66,7 +67,7 @@
         }
         
         #sidebar { 
-            width: 260px; 
+            width: 280px; /* Slightly wider to prevent shrinking on GitHub web viewports */
             background: var(--bg-sidebar); 
             padding: 24px; 
             border-right: 1px solid var(--border-color); 
@@ -75,6 +76,7 @@
             flex-direction: column; 
             gap: 20px; 
             overflow-y: auto;
+            box-sizing: border-box;
         }
 
         h2 { font-size: 11px; letter-spacing: 1.5px; margin: 0 0 4px 0; color: var(--accent); font-weight: 700; text-transform: uppercase; }
@@ -85,7 +87,7 @@
             background: rgba(255,255,255,0.03); 
             border: 1px solid var(--border-color); 
             color: var(--text-main); 
-            padding: 10px 14px; 
+            padding: 12px 14px; /* Increased height padding slightly for better web layout scan */
             border-radius: 8px; 
             width: 100%; 
             box-sizing: border-box; 
@@ -167,8 +169,8 @@
         [data-theme="light"] #overlay { background: rgba(255, 255, 255, 0.85); }
         [data-theme="matrix"] #overlay { background: rgba(0, 0, 0, 0.9); }
 
-        #overlay h1 { color: var(--accent); margin: 0 0 12px 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; text-align: center;}
-        #overlay p { color: var(--text-muted); margin: 0; font-size: 13px; text-align: center; line-height: 1.6; max-width: 340px; }
+        #overlay h1 { color: var(--accent); margin: 0 0 12px 0; font-size: 32px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; text-align: center;}
+        #overlay p { color: var(--text-muted); margin: 0; font-size: 14px; text-align: center; line-height: 1.6; max-width: 360px; }
 
         #countdownText {
             position: absolute;
@@ -337,12 +339,20 @@
             sens: sensInput.value,
             currentTier: currentTier
         };
-        localStorage.setItem('aimtrainer_v7_settings', JSON.stringify(settings));
+        localStorage.setItem('aimtrainer_v8_settings', JSON.stringify(settings));
+    }
+
+    function applyThemeAttribute(themeName) {
+        // Enforce the attribute to override default hosting layouts seamlessly
+        document.documentElement.setAttribute('data-theme', themeName);
     }
 
     function loadSettings() {
-        const stored = localStorage.getItem('aimtrainer_v7_settings');
-        if (!stored) return;
+        const stored = localStorage.getItem('aimtrainer_v8_settings');
+        if (!stored) {
+            applyThemeAttribute("cyberpunk");
+            return;
+        }
         try {
             const settings = JSON.parse(stored);
             themeSelect.value = settings.theme || "cyberpunk";
@@ -355,13 +365,10 @@
             sensInput.value = settings.sens || "0.23";
             currentTier = settings.currentTier || 1;
 
-            if(themeSelect.value === 'cyberpunk') {
-                document.documentElement.removeAttribute('data-theme');
-            } else {
-                document.documentElement.setAttribute('data-theme', themeSelect.value);
-            }
+            applyThemeAttribute(themeSelect.value);
         } catch (e) {
-            console.error("Pipeline config stream corrupted.", e);
+            applyThemeAttribute("cyberpunk");
+            console.error("Config pipeline reset fallback stream active.", e);
         }
     }
 
@@ -377,11 +384,7 @@
     setTimeout(resize, 0);
 
     themeSelect.addEventListener('change', (e) => {
-        if(e.target.value === 'cyberpunk') {
-            document.documentElement.removeAttribute('data-theme');
-        } else {
-            document.documentElement.setAttribute('data-theme', e.target.value);
-        }
+        applyThemeAttribute(e.target.value);
         saveSettings();
     });
 
@@ -503,7 +506,7 @@
             timeVal.textContent = timeRemaining + "s";
 
             if (timeRemaining <= 0) {
-                endSession(false); // Finished naturally by running out of time
+                endSession(false);
             }
         }, 1000);
     }
@@ -532,8 +535,6 @@
         }
 
         const config = tiers[currentTier];
-        
-        // You pass if you reached the quota directly or if time ran out but you met the criteria
         const passed = hitQuotaReached || (score >= config.reqScore && finalAcc >= config.reqAcc);
 
         if (passed) {
@@ -585,13 +586,12 @@
             score++;
             updateHUD();
 
-            // Check if we hit the limit early inside Game Mode
             if (modeSelectRoot.value === 'arcade') {
                 const config = tiers[currentTier];
                 const currentAcc = Math.round((score / totalClicks) * 100);
                 
                 if (score >= config.reqScore && currentAcc >= config.reqAcc) {
-                    endSession(true); // Exit immediately
+                    endSession(true);
                     return;
                 }
             }
@@ -611,13 +611,13 @@
     }
 
     resetBtn.addEventListener('click', () => {
-        localStorage.removeItem('aimtrainer_v7_settings');
+        localStorage.removeItem('aimtrainer_v8_settings');
         score = 0;
         totalClicks = 0;
         currentTier = 1;
         
         themeSelect.value = "cyberpunk";
-        document.documentElement.removeAttribute('data-theme');
+        applyThemeAttribute("cyberpunk");
         modeSelectRoot.value = "sandbox";
         timeLimitSelect.value = "15";
         modeSelect.value = "flick";
