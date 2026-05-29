@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ftap | aimtrainer v7</title>
+    <style>
+        :root {
+            --bg-sidebar: #0f1115;
+            --bg-game: #07080a;
+            --border-color: #1e222b;
+            --text-main: #f3f4f6;
+            --text-muted: #6b7280;
+            --accent: #00f5b4;
+            --target-color: #ff3b6f;
+            --dropdown-opt-bg: #0f1115;
+            --dropdown-opt-text: #f3f4f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-sidebar: #151515;
+            --bg-game: #0d0d0d;
+            --border-color: #262626;
+            --text-main: #e5e5e5;
+            --text-muted: #737373;
+            --accent: #a855f7;
+            --target-color: #f43f5e;
+            --dropdown-opt-bg: #151515;
+            --dropdown-opt-text: #e5e5e5;
+        }
+
+        [data-theme="light"] {
+            --bg-sidebar: #f4f4f7;
+            --bg-game: #ffffff;
+            --border-color: #e4e4e7;
+            --text-main: #18181b;
+            --text-muted: #a1a1aa;
+            --accent: #2563eb;
+            --target-color: #ef4444;
+            --dropdown-opt-bg: #ffffff;
+            --dropdown-opt-text: #18181b;
+        }
+
+        [data-theme="matrix"] {
+            --bg-sidebar: #020604;
+            --bg-game: #000000;
+            --border-color: #052e16;
+            --text-main: #4ade80;
+            --text-muted: #14532d;
+            --accent: #22c55e;
+            --target-color: #16a34a;
+            --dropdown-opt-bg: #020604;
+            --dropdown-opt-text: #4ade80;
+        }
+
+        body { 
+            margin: 0; 
+            background: var(--bg-game); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+            user-select: none; 
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        #sidebar { 
+            width: 260px; 
+            background: var(--bg-sidebar); 
+            padding: 24px; 
+            border-right: 1px solid var(--border-color); 
+            z-index: 10; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            overflow-y: auto;
+        }
+
+        h2 { font-size: 11px; letter-spacing: 1.5px; margin: 0 0 4px 0; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+        .setting-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+
+        input, select, button { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        select option {
+            background-color: var(--dropdown-opt-bg);
+            color: var(--dropdown-opt-text);
+        }
+
+        [data-theme="light"] input, [data-theme="light"] select { background: #fff; }
+        input:focus, select:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        [data-theme="light"] input:focus, [data-theme="light"] select:focus { background: #fff; }
+
+        button { background: var(--accent); color: #000; font-weight: 600; cursor: pointer; border: none; margin-top: 5px; }
+        button:hover { opacity: 0.9; }
+        #resetBtn { background: rgba(255, 59, 111, 0.1); color: #ff3b6f; border: 1px solid rgba(255, 59, 111, 0.2); }
+        #resetBtn:hover { background: rgba(255, 59, 111, 0.2); }
+
+        #gameArea { flex-grow: 1; position: relative; background: var(--bg-game); }
+
+        #hud {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 32px;
+            background: var(--bg-sidebar);
+            padding: 12px 28px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hud-stat { text-align: center; }
+        .hud-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .hud-value { font-size: 18px; color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 700; }
+
+        #targetCriteria {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            background: rgba(255,255,255,0.01);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+            line-height: 1.6;
+        }
+
+        canvas { display: block; cursor: none; width: 100%; height: 100%; }
+        
+        #overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(7, 8, 10, 0.85); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 100; 
+            cursor: pointer; 
+            backdrop-filter: blur(8px);
+        }
+        [data-theme="dark"] #overlay { background: rgba(13, 13, 13, 0.85); }
+        [data-theme="light"] #overlay { background: rgba(255, 255, 255, 0.85); }
+        [data-theme="matrix"] #overlay { background: rgba(0, 0, 0, 0.9); }
+
+        #overlay h1 { color: var(--accent); margin: 0 0 12px 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; text-align: center;}
+        #overlay p { color: var(--text-muted); margin: 0; font-size: 13px; text-align: center; line-height: 1.6; max-width: 340px; }
+
+        #countdownText {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: 800;
+            color: var(--accent);
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>Style</h2>
+    <div class="setting-group">
+        <select id="themeSelect">
+            <option value="cyberpunk">Mint</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="matrix">Matrix</option>
+        </select>
+    </div>
+
+    <h2>Mode</h2>
+    <div class="setting-group">
+        <select id="modeSelectRoot">
+            <option value="sandbox">Custom</option>
+            <option value="arcade">Game</option>
+        </select>
+    </div>
+
+    <div id="targetCriteria">
+        Select a configuration.
+    </div>
+
+    <div class="setting-group" id="timeWrapper">
+        <label>Time</label>
+        <select id="timeLimit">
+            <option value="15">15s</option>
+            <option value="30">30s</option>
+            <option value="infinite">Endless</option>
+        </select>
+    </div>
+
+    <div id="sandboxTuningPanel">
+        <h2>Tuning</h2>
+        <div class="setting-group">
+            <label>Type</label>
+            <select id="mode">
+                <option value="flick">Static</option>
+                <option value="follow">Dynamic</option>
+            </select>
+        </div>
+        
+        <div class="setting-group">
+            <label>Speed</label>
+            <select id="speedSelect">
+                <option value="0">None</option>
+                <option value="5">Slow</option>
+                <option value="12">Mid</option>
+                <option value="18">Fast</option>
+                <option value="25">Max</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label>Size</label>
+            <select id="sizeSelect">
+                <option value="45">Huge</option>
+                <option value="28">Big</option>
+                <option value="16">Mid</option>
+                <option value="9">Tiny</option>
+            </select>
+        </div>
+    </div>
+
+    <h2>Input</h2>
+    <div class="setting-group"><label>DPI</label><input type="number" id="dpi" value="400"></div>
+    <div class="setting-group"><label>Sens</label><input type="number" id="sens" value="0.23" step="0.01"></div>
+    
+    <button id="resetBtn">RESET SETTINGS</button>
+</div>
+
+<div id="gameArea">
+    <div id="hud">
+        <div class="hud-stat"><div class="hud-label" id="hudTimeLabel">Time</div><div id="timeVal" class="hud-value">15s</div></div>
+        <div class="hud-stat"><div class="hud-label">Hits</div><div id="scoreVal" class="hud-value">0</div></div>
+        <div class="hud-stat"><div class="hud-label">Acc</div><div id="accVal" class="hud-value">100%</div></div>
+    </div>
+
+    <div id="countdownText">3</div>
+
+    <div id="overlay">
+        <h1 id="overlayTitle">START SANDBOX</h1>
+        <p id="overlayDesc">Click canvas window to initiate lock.</p>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayDesc = document.getElementById('overlayDesc');
+    const countdownText = document.getElementById('countdownText');
+    
+    const scoreVal = document.getElementById('scoreVal');
+    const accVal = document.getElementById('accVal');
+    const timeVal = document.getElementById('timeVal');
+    const hudTimeLabel = document.getElementById('hudTimeLabel');
+    const targetCriteria = document.getElementById('targetCriteria');
+
+    const themeSelect = document.getElementById('themeSelect');
+    const modeSelectRoot = document.getElementById('modeSelectRoot');
+    const timeLimitSelect = document.getElementById('timeLimit');
+    const timeWrapper = document.getElementById('timeWrapper');
+    const sandboxTuningPanel = document.getElementById('sandboxTuningPanel');
+    
+    const modeSelect = document.getElementById('mode');
+    const speedSelect = document.getElementById('speedSelect');
+    const sizeSelect = document.getElementById('sizeSelect');
+    const dpiInput = document.getElementById('dpi');
+    const sensInput = document.getElementById('sens');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let player = { x: 0, y: 0 };
+    let target = { x: 0, y: 0, vx: 0, vy: 0 };
+    let isLocked = false;
+    let gameActive = false;
+    let inCountdown = false;
+
+    let score = 0;
+    let totalClicks = 0;
+    let timeRemaining = 0;
+    let timerInterval = null;
+
+    let currentTier = 1;
+    const tiers = {
+        1:  { name: "Tier 1", size: 45, speed: 0,  mode: 'flick',  reqScore: 10, reqAcc: 70,  time: 15 },
+        2:  { name: "Tier 2", size: 38, speed: 0,  mode: 'flick',  reqScore: 14, reqAcc: 75,  time: 15 },
+        3:  { name: "Tier 3", size: 32, speed: 0,  mode: 'flick',  reqScore: 18, reqAcc: 80,  time: 15 },
+        4:  { name: "Tier 4", size: 26, speed: 0,  mode: 'flick',  reqScore: 22, reqAcc: 85,  time: 15 },
+        5:  { name: "Tier 5", size: 18, speed: 0,  mode: 'flick',  reqScore: 25, reqAcc: 90,  time: 15 },
+        6:  { name: "Tier 6", size: 28, speed: 6,  mode: 'follow', reqScore: 15, reqAcc: 75,  time: 15 },
+        7:  { name: "Tier 7", size: 22, speed: 10, mode: 'follow', reqScore: 18, reqAcc: 80,  time: 15 },
+        8:  { name: "Tier 8", size: 16, speed: 14, mode: 'follow', reqScore: 20, reqAcc: 85,  time: 15 },
+        9:  { name: "Tier 9", size: 12, speed: 18, mode: 'follow', reqScore: 24, reqAcc: 90,  time: 15 },
+        10: { name: "Tier 10", size: 8,  speed: 25, mode: 'follow', reqScore: 28, reqAcc: 93,  time: 15 }
+    };
+
+    function saveSettings() {
+        const settings = {
+            theme: themeSelect.value,
+            rootMode: modeSelectRoot.value,
+            timeLimit: timeLimitSelect.value,
+            tuningMode: modeSelect.value,
+            speed: speedSelect.value,
+            size: sizeSelect.value,
+            dpi: dpiInput.value,
+            sens: sensInput.value,
+            currentTier: currentTier
+        };
+        localStorage.setItem('aimtrainer_v7_settings', JSON.stringify(settings));
+    }
+
+    function loadSettings() {
+        const stored = localStorage.getItem('aimtrainer_v7_settings');
+        if (!stored) return;
+        try {
+            const settings = JSON.parse(stored);
+            themeSelect.value = settings.theme || "cyberpunk";
+            modeSelectRoot.value = settings.rootMode || "sandbox";
+            timeLimitSelect.value = settings.timeLimit || "15";
+            modeSelect.value = settings.tuningMode || "flick";
+            speedSelect.value = settings.speed || "12";
+            sizeSelect.value = settings.size || "28";
+            dpiInput.value = settings.dpi || "400";
+            sensInput.value = settings.sens || "0.23";
+            currentTier = settings.currentTier || 1;
+
+            if(themeSelect.value === 'cyberpunk') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', themeSelect.value);
+            }
+        } catch (e) {
+            console.error("Pipeline config stream corrupted.", e);
+        }
+    }
+
+    function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        if (!isLocked) {
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+        }
+    }
+    window.addEventListener('resize', resize);
+    setTimeout(resize, 0);
+
+    themeSelect.addEventListener('change', (e) => {
+        if(e.target.value === 'cyberpunk') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', e.target.value);
+        }
+        saveSettings();
+    });
+
+    function updateSystemView() {
+        const isArcade = modeSelectRoot.value === 'arcade';
+        
+        if (isArcade) {
+            sandboxTuningPanel.style.display = "none";
+            timeWrapper.style.display = "none";
+            hudTimeLabel.textContent = "Time";
+            
+            const activeConfig = tiers[currentTier];
+            targetCriteria.innerHTML = `Campaign Mode: <b>${activeConfig.name}</b><br>Goal: <b>${activeConfig.reqScore} Hits</b><br>Required Accuracy: <b>${activeConfig.reqAcc}%</b>`;
+            timeVal.textContent = activeConfig.time + "s";
+            overlayTitle.textContent = `START ${activeConfig.name.toUpperCase()}`;
+            overlayDesc.textContent = "Click canvas window to initiate lock.";
+        } else {
+            sandboxTuningPanel.style.display = "block";
+            timeWrapper.style.display = "block";
+            
+            targetCriteria.innerHTML = "Custom Sandbox Mode:<br>Configure properties below.";
+            timeVal.textContent = timeLimitSelect.value === 'infinite' ? "LOOP" : timeLimitSelect.value + "s";
+            hudTimeLabel.textContent = timeLimitSelect.value === 'infinite' ? "Mode" : "Time";
+            overlayTitle.textContent = "START SANDBOX";
+            overlayDesc.textContent = "Click canvas window to initiate lock.";
+        }
+    }
+
+    [modeSelectRoot, timeLimitSelect, modeSelect, speedSelect, sizeSelect].forEach(element => {
+        element.addEventListener('change', () => {
+            updateSystemView();
+            saveSettings();
+        });
+    });
+
+    [dpiInput, sensInput].forEach(element => {
+        element.addEventListener('input', saveSettings);
+    });
+
+    overlay.addEventListener('click', () => {
+        canvas.requestPointerLock();
+    });
+
+    document.addEventListener('pointerlockchange', () => {
+        isLocked = document.pointerLockElement === canvas;
+        if (isLocked) {
+            overlay.style.display = 'none';
+            if (!gameActive && !inCountdown) {
+                runStartCountdown();
+            }
+        } else {
+            overlay.style.display = 'flex';
+            if (gameActive && modeSelectRoot.value === 'sandbox' && timeLimitSelect.value === 'infinite') {
+                overlayTitle.textContent = "PAUSED";
+                overlayDesc.textContent = "Click to resume current frame.";
+            } else if (inCountdown || gameActive) {
+                resetSessionState();
+                overlayTitle.textContent = "STOPPED";
+                overlayDesc.textContent = "Interrupted pipeline. Try again.";
+            }
+        }
+    });
+
+    function runStartCountdown() {
+        inCountdown = true;
+        gameActive = false;
+        target.x = 0; target.y = 0;
+        
+        score = 0;
+        totalClicks = 0;
+        updateHUD();
+
+        let count = 3;
+        countdownText.textContent = count;
+        countdownText.style.display = 'block';
+
+        let countInterval = setInterval(() => {
+            if (!isLocked) {
+                clearInterval(countInterval);
+                return;
+            }
+            count--;
+            if (count > 0) {
+                countdownText.textContent = count;
+            } else if (count === 0) {
+                countdownText.textContent = "GO";
+            } else {
+                clearInterval(countInterval);
+                countdownText.style.display = 'none';
+                inCountdown = false;
+                startSession();
+            }
+        }, 800);
+    }
+
+    function startSession() {
+        gameActive = true;
+        spawnTarget();
+        updateHUD();
+
+        if (modeSelectRoot.value === 'arcade') {
+            timeRemaining = tiers[currentTier].time;
+        } else {
+            const limit = timeLimitSelect.value;
+            if (limit === 'infinite') {
+                timeVal.textContent = "LOOP";
+                return;
+            }
+            timeRemaining = parseInt(limit);
+        }
+        
+        timeVal.textContent = timeRemaining + "s";
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (!isLocked) return;
+            
+            timeRemaining--;
+            timeVal.textContent = timeRemaining + "s";
+
+            if (timeRemaining <= 0) {
+                endSession(false); // Finished naturally by running out of time
+            }
+        }, 1000);
+    }
+
+    function resetSessionState() {
+        gameActive = false;
+        inCountdown = false;
+        clearInterval(timerInterval);
+        countdownText.style.display = 'none';
+        target.x = 0; target.y = 0;
+    }
+
+    function endSession(hitQuotaReached = false) {
+        gameActive = false;
+        clearInterval(timerInterval);
+        document.exitPointerLock();
+
+        const finalAcc = totalClicks === 0 ? 0 : Math.round((score / totalClicks) * 100);
+
+        overlayTitle.textContent = "ROUND FINISHED";
+        overlayTitle.style.color = "var(--accent)";
+
+        if (modeSelectRoot.value === 'sandbox') {
+            overlayDesc.innerHTML = `<b>Sandbox Metrics Summary</b><br>Hits Triggered: <b>${score}</b><br>Accuracy Evaluation: <b>${finalAcc}%</b><br><br>Click canvas area to rerun diagnostics.`;
+            return;
+        }
+
+        const config = tiers[currentTier];
+        
+        // You pass if you reached the quota directly or if time ran out but you met the criteria
+        const passed = hitQuotaReached || (score >= config.reqScore && finalAcc >= config.reqAcc);
+
+        if (passed) {
+            if (currentTier < 10) {
+                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>${config.name} SUCCESS</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click to advance into Tier ${currentTier + 1}.</b>`;
+                currentTier++;
+            } else {
+                overlayDesc.innerHTML = `<span style="color:var(--accent);"><b>CAMPAIGN MASTERED</b></span><br>Final Tier Cleared.<br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br>Resetting to cycle matrix loops.`;
+                currentTier = 1;
+            }
+        } else {
+            overlayTitle.style.color = "var(--target-color)";
+            overlayDesc.innerHTML = `<span style="color:var(--target-color);"><b>${config.name} DEFICIT</b></span><br>Score: ${score}/${config.reqScore}<br>Acc: ${finalAcc}%/${config.reqAcc}%<br><br><b>Click canvas frame to retry parameters.</b>`;
+        }
+        
+        saveSettings();
+        updateSystemView();
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isLocked) return;
+        
+        const dpi = parseFloat(dpiInput.value) || 400;
+        const sens = parseFloat(sensInput.value) || 0.23;
+        const multiplier = (sens * (dpi / 400)) * 2.5;
+
+        player.x += e.movementX * multiplier;
+        player.y += e.movementY * multiplier;
+
+        player.x = Math.max(0, Math.min(canvas.width, player.x));
+        player.y = Math.max(0, Math.min(canvas.height, player.y));
+    });
+
+    canvas.addEventListener('mousedown', () => {
+        if (!isLocked || inCountdown || !gameActive) return;
+
+        totalClicks++;
+        
+        let size;
+        if (modeSelectRoot.value === 'arcade') {
+            size = tiers[currentTier].size;
+        } else {
+            size = parseInt(sizeSelect.value);
+        }
+
+        const dist = Math.hypot(player.x - target.x, player.y - target.y);
+
+        if (dist <= size) {
+            score++;
+            updateHUD();
+
+            // Check if we hit the limit early inside Game Mode
+            if (modeSelectRoot.value === 'arcade') {
+                const config = tiers[currentTier];
+                const currentAcc = Math.round((score / totalClicks) * 100);
+                
+                if (score >= config.reqScore && currentAcc >= config.reqAcc) {
+                    endSession(true); // Exit immediately
+                    return;
+                }
+            }
+            spawnTarget();
+        } else {
+            updateHUD();
+        }
+    });
+
+    function updateHUD() {
+        scoreVal.textContent = score;
+        if (totalClicks === 0) {
+            accVal.textContent = "100%";
+        } else {
+            accVal.textContent = Math.round((score / totalClicks) * 100) + "%";
+        }
+    }
+
+    resetBtn.addEventListener('click', () => {
+        localStorage.removeItem('aimtrainer_v7_settings');
+        score = 0;
+        totalClicks = 0;
+        currentTier = 1;
+        
+        themeSelect.value = "cyberpunk";
+        document.documentElement.removeAttribute('data-theme');
+        modeSelectRoot.value = "sandbox";
+        timeLimitSelect.value = "15";
+        modeSelect.value = "flick";
+        speedSelect.value = "12";
+        sizeSelect.value = "28";
+        dpiInput.value = "400";
+        sensInput.value = "0.23";
+
+        resetSessionState();
+        updateSystemView();
+        updateHUD();
+    });
+
+    function spawnTarget() {
+        let size;
+        if (modeSelectRoot.value === 'arcade') {
+            size = tiers[currentTier].size;
+        } else {
+            size = parseInt(sizeSelect.value);
+        }
+
+        target.x = size + Math.random() * (canvas.width - size * 2);
+        target.y = size + Math.random() * (canvas.height - size * 2);
+        
+        const angle = Math.random() * Math.PI * 2;
+        target.vx = Math.cos(angle);
+        target.vy = Math.sin(angle);
+    }
+
+    function gameLoop() {
+        const currentStyles = getComputedStyle(document.body);
+        const colorGameBg = currentStyles.getPropertyValue('--bg-game').trim();
+        const colorAccent = currentStyles.getPropertyValue('--accent').trim();
+        const colorTarget = currentStyles.getPropertyValue('--target-color').trim();
+
+        ctx.fillStyle = colorGameBg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let mode, size, speed;
+        if (modeSelectRoot.value === 'arcade') {
+            const activeRule = tiers[currentTier];
+            mode = activeRule.mode;
+            size = activeRule.size;
+            speed = activeRule.speed / 3;
+        } else {
+            mode = modeSelect.value;
+            size = parseInt(sizeSelect.value);
+            speed = parseInt(speedSelect.value) / 3;
+        }
+
+        if (mode === 'follow' && gameActive && !inCountdown) {
+            target.x += target.vx * speed;
+            target.y += target.vy * speed;
+
+            if (target.x <= size) { target.x = size; target.vx *= -1; }
+            if (target.x >= canvas.width - size) { target.x = canvas.width - size; target.vx *= -1; }
+            if (target.y <= size) { target.y = size; target.vy *= -1; }
+            if (target.y >= canvas.height - size) { target.y = canvas.height - size; target.vy *= -1; }
+        }
+
+        if (gameActive && !inCountdown && target.x !== 0 && target.y !== 0) {
+            ctx.beginPath();
+            ctx.arc(target.x, target.y, size, 0, Math.PI * 2);
+            ctx.fillStyle = colorTarget;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        if (isLocked) {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, 8, 0, Math.PI * 2);
+            ctx.strokeStyle = colorAccent;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.fillStyle = colorAccent;
+            ctx.fillRect(player.x - 1, player.y - 1, 2, 2);
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    loadSettings();
+    updateSystemView();
+    gameLoop();
+</script>
+</body>
+</html>
