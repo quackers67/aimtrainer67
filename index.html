@@ -1,32 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="mint">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aim Trainer</title>
     <style>
-        :root, [data-theme="mint"] {
-            --bg-sidebar: #0f1115;
-            --bg-game: #07080a;
-            --border: #1e222b;
-            --text: #f3f4f6;
-            --text-muted: #6b7280;
-            --accent: #00f5b4; 
+        :root, [data-theme="dark"] {
+            --bg-sidebar: #02040a;
+            --bg-game: #000000;
+            --border: #05162e;
+            --text: #4adeff;
+            --text-muted: #143553;
+            --accent: #2299fe;
             --target: #ff3b6f;
-            --dropdown-bg: #0f1115;
-            --dropdown-text: #f3f4f6;
-        }
-
-        [data-theme="dark"] {
-            --bg-sidebar: #151515;
-            --bg-game: #0d0d0d;
-            --border: #262626;
-            --text: #e5e5e5;
-            --text-muted: #737373;
-            --accent: #a855f7;
-            --target: #f43f5e;
-            --dropdown-bg: #151515;
-            --dropdown-text: #e5e5e5;
+            --dropdown-bg: #02040a;
+            --dropdown-text: #4adeff;
         }
 
         [data-theme="light"] {
@@ -39,18 +27,6 @@
             --target: #ef4444;
             --dropdown-bg: #ffffff;
             --dropdown-text: #18181b;
-        }
-
-        [data-theme="matrix"] {
-            --bg-sidebar: #020604;
-            --bg-game: #000000;
-            --border: #052e16;
-            --text: #4ade80;
-            --text-muted: #14532d;
-            --accent: #22c55e;
-            --target: #16a34a;
-            --dropdown-bg: #020604;
-            --dropdown-text: #4ade80;
         }
 
         * {
@@ -312,7 +288,7 @@
         #overlay { 
             position: absolute; 
             inset: 0; 
-            background: rgba(7, 8, 10, 0.85); 
+            background: rgba(0, 0, 0, 0.9); 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -321,9 +297,7 @@
             cursor: pointer; 
             backdrop-filter: blur(8px);
         }
-        [data-theme="dark"] #overlay { background: rgba(13, 13, 13, 0.85); }
         [data-theme="light"] #overlay { background: rgba(255, 255, 255, 0.85); }
-        [data-theme="matrix"] #overlay { background: rgba(0, 0, 0, 0.9); }
 
         #overlay h1 { 
             color: var(--accent) !important; 
@@ -442,10 +416,8 @@
             <h2>Style</h2>
             <div class="setting-group">
                 <select id="themeSelect">
-                    <option value="mint">Mint</option>
-                    <option value="dark">Dark</option>
-                    <option value="light">Light</option>
-                    <option value="matrix">Matrix</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
                 </select>
             </div>
         </div>
@@ -549,12 +521,12 @@
     function loadSettings() {
         const stored = localStorage.getItem('aimtrainer_settings');
         if (!stored) {
-            applyThemeAttribute("mint");
+            applyThemeAttribute("dark");
             return;
         }
         try {
             const settings = JSON.parse(stored);
-            themeSelect.value = settings.theme || "mint";
+            themeSelect.value = settings.theme || "dark";
             modeSelectRoot.value = settings.rootMode || "sandbox";
             timeLimitSelect.value = settings.timeLimit || "15";
             modeSelect.value = settings.tuningMode || "flick";
@@ -567,7 +539,7 @@
 
             applyThemeAttribute(themeSelect.value);
         } catch (e) {
-            applyThemeAttribute("mint");
+            applyThemeAttribute("dark");
         }
     }
 
@@ -833,8 +805,8 @@
         totalClicks = 0;
         currentTier = 1;
         
-        themeSelect.value = "mint";
-        applyThemeAttribute("mint");
+        themeSelect.value = "dark";
+        applyThemeAttribute("dark");
         modeSelectRoot.value = "sandbox";
         timeLimitSelect.value = "15";
         modeSelect.value = "flick";
